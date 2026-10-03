@@ -2001,6 +2001,91 @@ Ou desafie-o para um duelo com: #duelorpg @${newName}`,
     };
   }
 
+  // --- #RESETAR (Reiniciar Perfil do Zero) ---
+  if (command === 'resetar' || command === 'reiniciar' || command === 'reset') {
+    const freshProfile = migrarPerfilParaV3({
+      id: activePlayer.id,
+      nome: activePlayer.nome,
+      donoId: activePlayer.donoId || currentUserUid || `user_${activePlayer.id}`,
+      avatar: activePlayer.avatar || '🗡️',
+      nivel: 1,
+      xp: 0,
+      xpProximo: 100,
+      hp: 180,
+      hpMax: 180,
+      ataqueBase: 22,
+      defesaBase: 12,
+      energia: 100,
+      energiaMax: 100,
+      ultimaAtualizacaoEnergia: agora,
+      moedas: 500,
+      vitoriasPvP: 0,
+      derrotasPvP: 0,
+      dungeonsCompletadas: 0,
+      ferramenta: criarInstanciaPicareta('madeira'),
+      equipamentos: {
+        elmo: criarInstanciaEquip('elmo_couro', 'comum'),
+        armadura: criarInstanciaEquip('armadura_couro', 'comum'),
+        calca: criarInstanciaEquip('calca_couro', 'comum'),
+        botas: criarInstanciaEquip('botas_couro', 'comum'),
+        arma: criarInstanciaEquip('espada_madeira', 'comum'),
+        escudo: null
+      },
+      inventario: [
+        { uid: 'inv_res_1', tipo: 'material', itemId: 'pedra', nome: 'Pedra Rústica', quantidade: 5, icone: '🪨', precoVenda: 15 },
+        { uid: 'inv_res_2', tipo: 'consumivel', itemId: 'pocao_cura_p', nome: 'Poção de Cura P', quantidade: 2, icone: '🧪', precoVenda: 25 }
+      ],
+      bauEspera: [],
+      buffs: [],
+      toxicidade: 0,
+      ultimaAtualizacaoToxicidade: agora,
+      elixires: { vitalidade: 0, poder: 0, guarda: 0 },
+      cooldowns: {
+        mine: 0,
+        trabalhar: 0,
+        arena: 0,
+        duelo: 0,
+        dungeon: 0,
+        curar: 0,
+        consertar: 0,
+        forjar: 0,
+        fundir: 0,
+        encantar: 0,
+        pocaoCura: 0,
+        roleta: 0,
+        petTreinar: 0
+      },
+      contadores24h: {
+        mine: [],
+        trabalhar: [],
+        pocoesCura: [],
+        roletaContador: 0,
+        duelosPorOponente: {}
+      },
+      diario: {
+        data: new Date().toISOString().slice(0, 10),
+        streak: 1,
+        coletadoHoje: false,
+        pocoesEnergiaCompradas: 0,
+        pocoesCuraUsadasHoje: 0,
+        questsConcluidas: []
+      },
+      pet: null,
+      claId: null
+    });
+
+    profilesMap[activePlayer.id] = freshProfile;
+
+    return {
+      messageText: `🔄 Personagem '@${activePlayer.nome}' foi REINICIADO DO ZERO!
+✨ Nível 1 | 💰 500 moedas | 🪵 Picareta de Madeira | 🥋 Equipamentos de Couro Iniciais.`,
+      updatedProfiles: Object.values(profilesMap),
+      activeProfileId: activePlayer.id,
+      activeParty: updatedParty,
+      soundType: 'levelup'
+    };
+  }
+
   // Unknown command fallback
   return {
     messageText: `❌ Comando não encontrado! Tente #menu para ver todos os comandos disponíveis no Sheldor RPG.`,
