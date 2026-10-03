@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile account linked to Google Auth",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "PlayerCharacter": {
+      "title": "PlayerCharacter",
+      "description": "In-game RPG warrior profile owned by a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "nome": { "type": "string", "maxLength": 50 },
+        "donoId": { "type": "string", "maxLength": 128 },
+        "avatar": { "type": "string", "maxLength": 20 },
+        "nivel": { "type": "number" },
+        "xp": { "type": "number" },
+        "xpProximo": { "type": "number" },
+        "hp": { "type": "number" },
+        "hpMax": { "type": "number" },
+        "ataqueBase": { "type": "number" },
+        "defesaBase": { "type": "number" },
+        "energia": { "type": "number" },
+        "energiaMax": { "type": "number" },
+        "moedas": { "type": "number" },
+        "vitoriasPvP": { "type": "number" },
+        "derrotasPvP": { "type": "number" },
+        "dungeonsCompletadas": { "type": "number" },
+        "claId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "nome", "donoId", "nivel", "hp", "moedas"]
+    },
+    "Clan": {
+      "title": "Clan",
+      "description": "Guild or clan created by players",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "nome": { "type": "string", "maxLength": 60 },
+        "tag": { "type": "string", "maxLength": 10 },
+        "liderId": { "type": "string", "maxLength": 128 },
+        "nivel": { "type": "number" },
+        "moedasBanco": { "type": "number" },
+        "vitoriasGuerra": { "type": "number" }
+      },
+      "required": ["id", "nome", "tag", "liderId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User account documents"
+    },
+    "/profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/PlayerCharacter" },
+      "description": "Individual RPG character profiles"
+    },
+    "/clans/{clanId}": {
+      "schema": { "$ref": "#/entities/Clan" },
+      "description": "Game clans and guilds"
+    }
+  }
+}

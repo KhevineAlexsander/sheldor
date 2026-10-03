@@ -1,0 +1,6 @@
+{
+  "name": "Sheldor RPG",
+  "description": "RPG de Texto por Comandos estilo WhatsApp (100% autônomo, PvP entre perfis, Dungeons com Party e Bosses, Arena, Mineração e Economia).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
