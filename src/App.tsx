@@ -8,7 +8,11 @@ import {
   deleteDungeonParty,
   subscribeProfiles,
   subscribeClans,
-  saveUserAccount
+  saveUserAccount,
+  subscribeGlobalMessages,
+  sendGlobalMessage,
+  subscribeAllParties,
+  resetAllProfilesToFreshStart
 } from './firebase/firestoreService';
 import { WhatsAppChat } from './components/WhatsAppChat';
 import { ProfilesPvPView } from './components/ProfilesPvPView';
@@ -98,22 +102,24 @@ Digite #menu para listar os comandos ou clique nos atalhos rápidos!`,
     return () => unsubAuth();
   }, []);
 
-  // Realtime Sync with Firestore for Profiles & Clans
+  // Realtime Sync with Firestore for Profiles, Clans, and Global Messages
   useEffect(() => {
     if (!authChecked) return;
 
     const unsubProfiles = subscribeProfiles((remoteProfiles) => {
       if (remoteProfiles.length > 0) {
         setProfiles(remoteProfiles);
-        // If current activeProfile not in remote, select user's profile or first
+        // Lock to current user's personal profile
+        if (currentUser) {
+          const myProfile = remoteProfiles.find((p) => p.donoId === currentUser.uid);
+          if (myProfile) {
+            setActiveProfileId(myProfile.id);
+            return;
+          }
+        }
         setActiveProfileId((prev) => {
           const exists = remoteProfiles.find((p) => p.id === prev);
-          if (exists) return prev;
-          if (currentUser) {
-            const myProfile = remoteProfiles.find((p) => p.donoId === currentUser.uid);
-            if (myProfile) return myProfile.id;
-          }
-          return remoteProfiles[0].id;
+          return exists ? prev : remoteProfiles[0].id;
         });
       }
     }, currentUser);
@@ -124,9 +130,16 @@ Digite #menu para listar os comandos ou clique nos atalhos rápidos!`,
       }
     });
 
+    const unsubMessages = subscribeGlobalMessages((remoteMsgs) => {
+      if (remoteMsgs.length > 0) {
+        setMessages(remoteMsgs);
+      }
+    });
+
     return () => {
       unsubProfiles();
       unsubClans();
+      unsubMessages();
     };
   }, [currentUser, authChecked]);
 
@@ -249,6 +262,28 @@ Digite #menu para listar os comandos ou clique nos atalhos rápidos!`,
     }
   };
 
+  const handleResetAllProfiles = async () => {
+    if (window.confirm('⚠️ Deseja realmente resetar todos os perfis para o Nível 1 inicial com 500 moedas e equipamentos de couro?')) {
+      const fresh = await resetAllProfilesToFreshStart(currentUser);
+      setProfiles(fresh);
+      if (fresh.length > 0) {
+        const myProfile = fresh.find((p) => p.donoId === currentUser?.uid);
+        setActiveProfileId(myProfile ? myProfile.id : fresh[0].id);
+      }
+      playLevelUpSound();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `rst-${Date.now()}`,
+          remetente: 'bot',
+          texto: '🔄 Todos os perfis do servidor foram resetados para o Nível 1 do Zero!',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          comandoOrigem: '#resetar'
+        }
+      ]);
+    }
+  };
+
   const energiaPercent = activeProfile
     ? Math.max(0, Math.min(100, Math.round((activeProfile.energia / activeProfile.energiaMax) * 100)))
     : 100;
@@ -302,6 +337,13 @@ Digite #menu para listar os comandos ou clique nos atalhos rápidos!`,
                   <span>Login</span>
                 </button>
               )}
+              <button
+                onClick={handleResetAllProfiles}
+                title="Resetar Todos os Perfis para o Nível 1"
+                className="p-1.5 rounded-xl bg-[#202c33] text-amber-400 hover:text-amber-300 border border-slate-700 cursor-pointer active:scale-95"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
               <button
                 onClick={handleToggleSound}
                 className="p-1.5 rounded-xl bg-[#202c33] text-slate-300 border border-slate-700 cursor-pointer active:scale-95"
@@ -371,6 +413,15 @@ Digite #menu para listar os comandos ou clique nos atalhos rápidos!`,
                   <span>Login Google</span>
                 </button>
               )}
+
+              <button
+                onClick={handleResetAllProfiles}
+                title="Resetar Todos os Perfis para o Nível 1"
+                className="p-2 rounded-xl bg-[#202c33] hover:bg-[#2a3942] text-amber-400 hover:text-amber-300 border border-slate-700 transition cursor-pointer flex items-center gap-1.5 text-xs font-mono"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span className="hidden md:inline">Resetar</span>
+              </button>
 
               <button
                 onClick={handleToggleSound}

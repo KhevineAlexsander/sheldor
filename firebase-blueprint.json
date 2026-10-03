@@ -41,7 +41,7 @@
     },
     "Clan": {
       "title": "Clan",
-      "description": "Guild or clan created by players",
+      "description": "Game clans and guilds",
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 128 },
@@ -53,6 +53,20 @@
         "vitoriasGuerra": { "type": "number" }
       },
       "required": ["id", "nome", "tag", "liderId"]
+    },
+    "GlobalMessage": {
+      "title": "GlobalMessage",
+      "description": "Live global game chat and battle log broadcast",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "remetente": { "type": "string", "maxLength": 20 },
+        "remetenteNome": { "type": "string", "maxLength": 50 },
+        "texto": { "type": "string", "maxLength": 2000 },
+        "timestamp": { "type": "string" },
+        "comandoOrigem": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "texto", "timestamp"]
     }
   },
   "firestore": {
@@ -67,6 +81,10 @@
     "/clans/{clanId}": {
       "schema": { "$ref": "#/entities/Clan" },
       "description": "Game clans and guilds"
+    },
+    "/global_messages/{messageId}": {
+      "schema": { "$ref": "#/entities/GlobalMessage" },
+      "description": "Live global chat messages and combat broadcast"
     }
   }
 }
